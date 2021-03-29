@@ -2,7 +2,7 @@
  * alternate takes a list of numbers and adds them with alternating sign. 
  * For example:
  *   alternate [1,2,3,4] = 1 - 2 + 3 - 4 = -2
-*)
+ *)
 fun alternate (xs : int list) =
   let
     fun help (xs : int list, sign : int) = 
@@ -16,7 +16,7 @@ fun alternate (xs : int list) =
 (* 
  * min_max takes a non-empty list of numbers, and returns a pair (min, max).
  *  min and max are the minimum and maximum of the numbers in the list.
-*)
+ *)
 fun min_max (xs : int list) =
   let
     (* a tuple contains min and max number of first two of numbers list *)
@@ -41,4 +41,22 @@ fun min_max (xs : int list) =
       in
         help((#1 tmp), (#2 tmp), tl(tl(xs)))
       end
+  end
+
+(*
+ * cumsum takes a list of numbers and returns a list of the partial sums of those numbers. 
+ * For example:
+ *   cumsum [1,4,20] = [1,5,25]
+ *)
+fun cumsum(xs : int list) =
+  let
+    fun help(origin : int list, result : int list) =
+      if null origin
+      then result
+      else if null result
+           then help(tl(origin), hd(origin)::result)
+           else help(tl(origin), (hd(origin) + hd(result))::result)
+  in
+    (* How to avoid using rev function *)
+    rev(help(xs, []))
   end
