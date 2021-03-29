@@ -40,3 +40,18 @@ fun cumsum(xs : int list) =
   in
     (hd xs) :: help(tl xs, hd xs)
   end
+
+fun greeting(name : string option) =
+  if isSome name then "Hello there, " ^ valOf name ^ "!"
+  else "Hello there, you!"
+
+(*
+ * repeat repeats the integers in the first list according to the numbers indicated by the second list. 
+ * For example: 
+ *   repeat ([1,2,3], [4,0,3]) = [1,1,1,1,3,3,3]
+ *)
+fun repeat(xs : int list, ys : int list) =
+  if null ys then []
+  else if hd(ys) = 0
+       then repeat(tl xs, tl ys)
+       else hd(xs) :: repeat(xs, (hd ys - 1)::tl(ys))
