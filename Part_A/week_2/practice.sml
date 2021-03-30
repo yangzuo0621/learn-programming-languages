@@ -116,3 +116,23 @@ fun zip(xs : int list, ys : int list) =
   if null xs orelse null ys
   then []
   else (hd xs, hd ys) :: zip(tl xs, tl ys)
+
+(* zipRecycle int list * int list -> int * int
+   creates pairs when one list is empty it starts recycling from its start until the other list completes. 
+   For example: 
+     zipRecycle ([1,2,3], [1, 2, 3, 4, 5, 6, 7]) = [(1,1), (2,2), (3,3), (1,4), (2,5), (3,6), (1,7)]
+*)
+fun zipRecycle(xs : int list, ys : int list) =
+  if null ys orelse null xs 
+  then []
+  else
+    let
+      fun zip(x : int list, y : int list) =
+        if null y
+        then []
+        else if null x
+             then (hd xs, hd y) :: zip(tl xs, tl y)
+             else (hd x, hd y) :: zip(tl x, tl y)
+    in
+      zip(xs, ys)
+    end
