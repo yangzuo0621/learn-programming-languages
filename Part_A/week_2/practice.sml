@@ -173,6 +173,23 @@ fun lookup (dict : (string * int) list, key : string) =
   else if #1(hd dict) = key then SOME (#2(hd dict))
   else lookup(tl dict, key)
 
+(* splitAt : int list -> int list * int list 
+   given a list of integers creates two lists of integers, 
+   one containing entries that greater and equal than threshold, the other containing entries less than threshold. 
+   Relative order must be preserved: 
+   All non-negative entries must appear in the same order in which they were on the original list, 
+   and similarly for the negative entries. 
+*)
+fun splitAt(xs : int list, threshold : int) =
+  let
+    fun split(xs : int list, nonnegative : int list, negative : int list) =
+      if null xs then (nonnegative, negative)
+      else if hd xs >= threshold then split(tl xs, (hd xs)::nonnegative, negative)
+      else split(tl xs, nonnegative, (hd xs)::negative)
+  in
+    split(rev xs, [], [])
+  end
+  
 (* splitup : int list -> int list * int list 
    given a list of integers creates two lists of integers, 
    one containing the non-negative entries, the other containing the negative entries. 
@@ -181,12 +198,4 @@ fun lookup (dict : (string * int) list, key : string) =
    and similarly for the negative entries. 
 *)
 fun splitup(xs : int list) =
-  let
-    fun split(xs : int list, nonnegative : int list, negative : int list) =
-      if null xs then (nonnegative, negative)
-      else if hd xs >= 0 then split(tl xs, (hd xs)::nonnegative, negative)
-      else split(tl xs, nonnegative, (hd xs)::negative)
-  in
-    (* TODO remove the reverse *)
-    split(rev xs, [], [])
-  end
+  splitAt(xs, 0)
