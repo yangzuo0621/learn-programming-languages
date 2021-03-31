@@ -161,3 +161,14 @@ fun zipOpt(xs : int list, ys : int list) =
     in
       help(xs, ys)
     end
+
+(* lookup : (string * int) list * string -> int option 
+   takes a list of pairs (s, i) and also a string s2 to look up. 
+   It then goes through the list of pairs looking for the string s2 in the first component. 
+   If it finds a match with corresponding number i, then it returns SOME i. 
+   If it does not, it returns NONE. 
+*)
+fun lookup (dict : (string * int) list, key : string) =
+  if null dict then NONE
+  else if #1(hd dict) = key then SOME (#2(hd dict))
+  else lookup(tl dict, key)
