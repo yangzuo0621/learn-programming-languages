@@ -199,3 +199,37 @@ fun splitAt(xs : int list, threshold : int) =
 *)
 fun splitup(xs : int list) =
   splitAt(xs, 0)
+
+(* isSorted : int list -> boolean 
+   given a list of integers determines whether the list is sorted in increasing order. 
+*)
+fun isSorted(xs : int list) =
+  if null xs orelse null (tl xs) then true
+  else hd xs <= hd(tl xs) andalso isSorted(tl xs)
+
+(* isAnySorted : int list -> boolean 
+   given a list of integers determines whether the list is sorted in either increasing or decreasing order. 
+*)
+fun isAnySorted(xs : int list) =
+  let fun sortHelp(ys : int list, isIncreasing : bool) =
+    if null ys orelse null (tl ys) then true
+    else if isIncreasing = true 
+         then hd ys <= hd(tl ys) andalso sortHelp(tl ys, isIncreasing)
+         else hd ys >= hd(tl ys) andalso sortHelp(tl ys, isIncreasing)
+  in
+    if null xs orelse null (tl xs) then true
+    else if hd xs = hd(tl xs) then isAnySorted(tl xs)
+    else sortHelp(xs, hd xs < hd(tl xs))
+  end
+
+(* sortedMerge : int list * int list -> int list 
+   takes two lists of integers that are each sorted from smallest to largest, 
+   and merges them into one sorted list. 
+   For example: sortedMerge ([1,4,7], [5,8,9]) = [1,4,5,7,8,9]
+*)
+fun sortedMerge(xs : int list, ys : int list) =
+  if null xs then ys
+  else if null ys then xs
+  else if hd xs < hd ys
+       then hd(xs) :: sortedMerge(tl xs, ys)
+       else hd(ys) :: sortedMerge(xs, tl ys)
