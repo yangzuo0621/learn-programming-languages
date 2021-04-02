@@ -108,7 +108,7 @@ fun all(pres : bool list) =
   else if hd pres = false then false
   else all(tl pres)
 
-(* zip : int list * int list -> int * int
+(* zip : int list * int list -> int * int list
    given two lists of integers creates consecutive pairs, and stops when one of the lists is empty. 
    For example: zip ([1,2,3], [4,6]) = [(1,4), (2,6)]. 
 *)
@@ -117,7 +117,7 @@ fun zip(xs : int list, ys : int list) =
   then []
   else (hd xs, hd ys) :: zip(tl xs, tl ys)
 
-(* zipRecycle : int list * int list -> int * int
+(* zipRecycle : int list * int list -> int * int list
    creates pairs when one list is empty it starts recycling from its start until the other list completes. 
    For example: 
      zipRecycle ([1,2,3], [1, 2, 3, 4, 5, 6, 7]) = [(1,1), (2,2), (3,3), (1,4), (2,5), (3,6), (1,7)]
@@ -176,16 +176,14 @@ fun lookup (dict : (string * int) list, key : string) =
 (* splitAt : int list -> int list * int list 
    given a list of integers creates two lists of integers, 
    one containing entries that greater and equal than threshold, the other containing entries less than threshold. 
-   Relative order must be preserved: 
-   All non-negative entries must appear in the same order in which they were on the original list, 
-   and similarly for the negative entries. 
+   Relative order must be preserved.
 *)
 fun splitAt(xs : int list, threshold : int) =
   let
-    fun split(xs : int list, nonnegative : int list, negative : int list) =
-      if null xs then (nonnegative, negative)
-      else if hd xs >= threshold then split(tl xs, (hd xs)::nonnegative, negative)
-      else split(tl xs, nonnegative, (hd xs)::negative)
+    fun split(xs : int list, greater : int list, less : int list) =
+      if null xs then (greater, less)
+      else if hd xs >= threshold then split(tl xs, (hd xs)::greater, less)
+      else split(tl xs, greater, (hd xs)::less)
   in
     split(rev xs, [], [])
   end
@@ -233,3 +231,16 @@ fun sortedMerge(xs : int list, ys : int list) =
   else if hd xs < hd ys
        then hd(xs) :: sortedMerge(tl xs, ys)
        else hd(ys) :: sortedMerge(xs, tl ys)
+
+fun qsort(xs : int list) =
+  if null xs then []
+  else if null (tl xs) then xs
+  else
+    let
+      val threshold = hd xs
+      val twoParts = splitAt(tl xs, threshold)
+      val greaterPart = qsort(#1 twoParts)
+      val lessPart = qsort(#2 twoParts)
+    in
+      sortedMerge(lessPart, threshold::greaterPart)
+    end
