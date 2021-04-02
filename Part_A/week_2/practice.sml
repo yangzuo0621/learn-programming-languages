@@ -179,14 +179,16 @@ fun lookup (dict : (string * int) list, key : string) =
    Relative order must be preserved.
 *)
 fun splitAt(xs : int list, threshold : int) =
-  let
-    fun split(xs : int list, greater : int list, less : int list) =
-      if null xs then (greater, less)
-      else if hd xs >= threshold then split(tl xs, (hd xs)::greater, less)
-      else split(tl xs, greater, (hd xs)::less)
-  in
-    split(rev xs, [], [])
-  end
+  if null xs then ([], [])
+  else
+    let
+      val head = hd xs
+      val tmp = splitAt(tl xs, threshold)
+    in
+      if head >= threshold
+      then (head::(#1 tmp), #2 tmp)
+      else (#1 tmp, head::(#2 tmp))
+    end
   
 (* splitup : int list -> int list * int list 
    given a list of integers creates two lists of integers, 
