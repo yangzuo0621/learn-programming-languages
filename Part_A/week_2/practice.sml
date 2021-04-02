@@ -232,6 +232,11 @@ fun sortedMerge(xs : int list, ys : int list) =
        then hd(xs) :: sortedMerge(tl xs, ys)
        else hd(ys) :: sortedMerge(xs, tl ys)
 
+(* qsort : int list -> int list
+   Takes the first element out, and uses it as the "threshold" for splitAt. 
+   It then recursively sorts the two lists produced by splitAt. 
+   Finally it brings the two lists together. 
+*)
 fun qsort(xs : int list) =
   if null xs then []
   else if null (tl xs) then xs
@@ -244,3 +249,25 @@ fun qsort(xs : int list) =
     in
       sortedMerge(lessPart, threshold::greaterPart)
     end
+
+(* divide : int list -> int list * int list
+   takes a list of integers and produces two lists by alternating elements between the two lists.
+   For example: divide ([1,2,3,4,5,6,7]) = ([1,3,5,7], [2,4,6])
+*)
+fun divide (xs : int list) =
+  let 
+    fun divideHelp (ys : int list, index : int) =
+      if null ys then ([], [])
+      else 
+        let
+          val tmp = divideHelp(tl ys, index+1)
+          val oddPart = #1 tmp
+          val evenPart = #2 tmp
+        in
+          if index mod 2 = 1
+          then ((hd ys)::oddPart, evenPart)
+          else (oddPart, (hd ys)::evenPart)
+        end
+  in
+    divideHelp(xs, 1)
+  end
