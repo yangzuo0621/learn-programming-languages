@@ -108,7 +108,7 @@ fun all(pres : bool list) =
   else if hd pres = false then false
   else all(tl pres)
 
-(* zip : int list * int list -> int * int list
+(* zip : int list * int list -> (int * int) list
    given two lists of integers creates consecutive pairs, and stops when one of the lists is empty. 
    For example: zip ([1,2,3], [4,6]) = [(1,4), (2,6)]. 
 *)
@@ -117,7 +117,7 @@ fun zip(xs : int list, ys : int list) =
   then []
   else (hd xs, hd ys) :: zip(tl xs, tl ys)
 
-(* zipRecycle : int list * int list -> int * int list
+(* zipRecycle : int list * int list -> (int * int) list
    creates pairs when one list is empty it starts recycling from its start until the other list completes. 
    For example: 
      zipRecycle ([1,2,3], [1, 2, 3, 4, 5, 6, 7]) = [(1,1), (2,2), (3,3), (1,4), (2,5), (3,6), (1,7)]
@@ -309,3 +309,32 @@ fun fullDivide(k : int, n : int) =
     in
       countHelp(k, n, 0)
     end
+
+(* factorize : int -> (int * int) list
+   given a number n returns a list of pairs (d, k)
+   where d is a prime number dividing n and k is the number of times it fits. 
+   The pairs should be in increasing order of prime factor, 
+   and the process should stop when the divisor considered surpasses the square root of n. 
+   If you make sure to use the reduced number n2 given by fullDivide for each next step, 
+   you should not need to test if the divisors are prime: If a number divides into n, it must be prime 
+   (if it had prime factors, they would have been earlier prime factors of n and thus reduced earlier). 
+   Examples: 
+     factorize(20) = [(2,2), (5,1)]
+     factorize(36) = [(2,2), (3,2)]
+     factorize(1) = [] 
+*)
+
+
+(* multiply : (int * int) list -> int
+   given a factorization of a number n as described in the previous problem computes back the number n.
+   So this should do the opposite of factorize. 
+*)
+
+(* all_products : (int * int) list -> int list
+   given a factorization list result from factorize creates a list all of possible products 
+   produced from using some or all of those prime factors no more than the number of times they are available. 
+   This should end up being a list of all the divisors of the number n that gave rise to the list. 
+   For extra challenge, your recursive process should return the numbers in this order, as opposed to sorting them afterwards. 
+   Example: 
+     all_products([(2,2), (5,1)]) = [1,2,4,5,10,20]
+*)
