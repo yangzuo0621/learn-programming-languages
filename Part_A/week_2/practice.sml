@@ -289,3 +289,23 @@ fun not_so_quick_sort(xs : int list) =
     in
       sortedMerge(firstPart, secondPart)
     end
+
+(* fullDivide : int * int -> int * int
+   given two numbers k and n it attempts to evenly divide k into n as many times as possible, 
+   and returns a pair (d, n2) where d is the number of times 
+   while n2 is the resulting n after all those divisions. 
+   Examples: 
+     fullDivide (2, 40) = (3, 5)  because 2*2*2*5 = 40
+     fullDivide(3, 10) = (0, 10) because 3 does not divide 10. 
+*)
+fun fullDivide(k : int, n : int) =
+  if k = 0 orelse n = 0 then (0, 0)
+  else
+    let 
+      fun countHelp(k : int, n2 : int, count : int) =
+        if n2 mod k = 0
+        then countHelp(k, n2 div k, count + 1)
+        else (count, n2)
+    in
+      countHelp(k, n, 0)
+    end
