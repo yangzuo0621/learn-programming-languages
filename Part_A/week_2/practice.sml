@@ -271,3 +271,19 @@ fun divide (xs : int list) =
   in
     divideHelp(xs, 1)
   end
+
+(* not_so_quick_sort : int list -> int list
+   Given the initial list of integers, splits it in two lists using divide, 
+   then recursively sorts those two lists, then merges them together with sortedMerge.  
+*)
+fun not_so_quick_sort(xs : int list) =
+  if null xs then []
+  else if null(tl xs) then xs
+  else
+    let
+      val tmp = divide(xs)
+      val firstPart = not_so_quick_sort(#1 tmp)
+      val secondPart = not_so_quick_sort(#2 tmp)
+    in
+      sortedMerge(firstPart, secondPart)
+    end
