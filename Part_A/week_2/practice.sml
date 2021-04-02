@@ -323,12 +323,32 @@ fun fullDivide(k : int, n : int) =
      factorize(36) = [(2,2), (3,2)]
      factorize(1) = [] 
 *)
-
+fun factorize(x : int) =
+  let fun factorizeHelp(d : int, k : int) =
+    if d = 1 then []
+    else if d mod k <> 0 then factorizeHelp(d, k+1)
+    else if d = k then [(k, 1)]
+    else
+      let
+        val tmp = fullDivide(k, d)
+      in
+        (k, #1 tmp) :: factorizeHelp(#2 tmp, 2)
+      end
+  in
+    factorizeHelp(x, 2)
+  end
 
 (* multiply : (int * int) list -> int
    given a factorization of a number n as described in the previous problem computes back the number n.
    So this should do the opposite of factorize. 
 *)
+fun multiply(pairs : (int * int) list) =
+  let fun mul(x : int, count : int) =
+    if count = 1 then x else x * mul(x, count - 1)
+  in
+    if null pairs then 1
+    else mul((#1 (hd pairs)), (#2 (hd pairs))) * multiply(tl pairs)
+  end
 
 (* all_products : (int * int) list -> int list
    given a factorization list result from factorize creates a list all of possible products 
