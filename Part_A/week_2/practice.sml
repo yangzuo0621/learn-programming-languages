@@ -358,3 +358,39 @@ fun multiply(pairs : (int * int) list) =
    Example: 
      all_products([(2,2), (5,1)]) = [1,2,4,5,10,20]
 *)
+(* ugly implemetation, generateProductList is a tree recursion, and use sort and remove duplicate assistant func
+   TODO: use more efficient data structure to remove duplicate elements *)
+fun all_products(factors : (int*int) list) =
+  let
+    fun removeDuplicate(xs : int list) =
+      if null xs then []
+      else if null (tl xs) then xs
+      else if hd(xs) = hd(tl xs) then removeDuplicate(tl xs)
+      else (hd xs)::removeDuplicate(tl xs)
+    
+    fun generateFactorList(xs : (int*int) list) =
+      if null xs then []
+      else if #2 (hd xs) = 0
+      then generateFactorList(tl xs)
+      else 
+        let
+          val factor = #1 (hd xs)
+          val count = #2 (hd xs)
+        in
+          factor :: generateFactorList((factor, count-1)::(tl xs))
+        end
+
+    fun generateProductList(xs : int list, ys : int list, product : int) =    
+      if null xs then ys
+      else
+        let
+          val x = generateProductList(tl xs, product::ys, product)
+          val y = generateProductList(tl xs, (product*hd(xs))::ys, product*(hd xs))
+          val x = qsort(x)
+          val y = qsort(y)
+        in
+          removeDuplicate(sortedMerge(x, y))
+        end
+  in
+    generateProductList(generateFactorList(factors), [], 1)
+  end
