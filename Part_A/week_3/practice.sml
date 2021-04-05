@@ -152,27 +152,24 @@ fun zipOpt lists =
    If it finds a match with corresponding number i, then it returns SOME i. 
    If it does not, it returns NONE. 
 *)
-fun lookup (dict : (string * int) list, key : string) =
-  if null dict then NONE
-  else if #1(hd dict) = key then SOME (#2(hd dict))
-  else lookup(tl dict, key)
+fun lookup (dicts : (string * int) list, key : string) =
+  case dicts of
+      [] => NONE
+    | (s, i) :: dicts' => if s = key then SOME(i) else lookup(dicts', key)
 
-(* splitAt : int list -> int list * int list 
+(* splitAt : int list * int -> int list * int list
    given a list of integers creates two lists of integers, 
    one containing entries that greater and equal than threshold, the other containing entries less than threshold. 
    Relative order must be preserved.
 *)
 fun splitAt(xs : int list, threshold : int) =
-  if null xs then ([], [])
-  else
-    let
-      val head = hd xs
-      val tmp = splitAt(tl xs, threshold)
-    in
-      if head >= threshold
-      then (head::(#1 tmp), #2 tmp)
-      else (#1 tmp, head::(#2 tmp))
-    end
+  case xs of
+      [] => ([], [])
+    | x :: xs' => let val (larger, small) = splitAt(xs', threshold)
+                  in
+                    if x >= threshold then (x::larger, small)
+                    else (larger, x::small)
+                  end
   
 (* splitup : int list -> int list * int list 
    given a list of integers creates two lists of integers, 
@@ -187,23 +184,29 @@ fun splitup(xs : int list) =
 (* isSorted : int list -> boolean 
    given a list of integers determines whether the list is sorted in increasing order. 
 *)
-fun isSorted(xs : int list) =
-  if null xs orelse null (tl xs) then true
-  else hd xs <= hd(tl xs) andalso isSorted(tl xs)
+fun isSorted xs =
+  case xs of
+      [] => true
+    | _ :: [] => true
+    | x :: y :: xs' => x <= y andalso isSorted(y::xs')
 
 (* isAnySorted : int list -> boolean 
    given a list of integers determines whether the list is sorted in either increasing or decreasing order. 
 *)
 fun isAnySorted(xs : int list) =
-  let fun sortHelp(ys : int list, isIncreasing : bool) =
-    if null ys orelse null (tl ys) then true
-    else if isIncreasing = true 
-         then hd ys <= hd(tl ys) andalso sortHelp(tl ys, isIncreasing)
-         else hd ys >= hd(tl ys) andalso sortHelp(tl ys, isIncreasing)
+  (* let fun sortHelp lists (ys : int list, isIncreasing : bool) = *)
+  let
+    fun sortHelp lists =
+      case lists of
+          ([], _) => true
+        | (x ::[], _) => true
+        | (x :: y :: xs', NONE) => if x = y then sortHelp(y::xs', NONE)
+                                   else if x < y then sortHelp(y::xs', SOME true)
+                                   else sortHelp(y::xs', SOME false)
+        | (x :: y :: xs', SOME true) => x <= y andalso sortHelp(y::xs', SOME true)
+        | (x :: y :: xs', SOME false) => x >= y andalso sortHelp(y::xs', SOME false)
   in
-    if null xs orelse null (tl xs) then true
-    else if hd xs = hd(tl xs) then isAnySorted(tl xs)
-    else sortHelp(xs, hd xs < hd(tl xs))
+    sortHelp (xs, NONE)
   end
 
 (* sortedMerge : int list * int list -> int list 
@@ -211,49 +214,47 @@ fun isAnySorted(xs : int list) =
    and merges them into one sorted list. 
    For example: sortedMerge ([1,4,7], [5,8,9]) = [1,4,5,7,8,9]
 *)
-fun sortedMerge(xs : int list, ys : int list) =
-  if null xs then ys
-  else if null ys then xs
-  else if hd xs < hd ys
-       then hd(xs) :: sortedMerge(tl xs, ys)
-       else hd(ys) :: sortedMerge(xs, tl ys)
+fun sortedMerge lists =
+  case lists of
+      ([], ys) => ys
+    | (xs, []) => xs
+    | (x::xs', y::ys') => if x < y
+                          then x :: sortedMerge(xs', y::ys')
+                          else y :: sortedMerge(x::xs', ys')
 
 (* qsort : int list -> int list
    Takes the first element out, and uses it as the "threshold" for splitAt. 
    It then recursively sorts the two lists produced by splitAt. 
    Finally it brings the two lists together. 
 *)
-fun qsort(xs : int list) =
-  if null xs then []
-  else if null (tl xs) then xs
-  else
-    let
-      val threshold = hd xs
-      val twoParts = splitAt(tl xs, threshold)
-      val greaterPart = qsort(#1 twoParts)
-      val lessPart = qsort(#2 twoParts)
-    in
-      sortedMerge(lessPart, threshold::greaterPart)
-    end
+fun qsort lists =
+  case lists of
+      [] => []
+    | x :: [] => [x]
+    | x :: xs' => let 
+                    val (greaterPart, smallPart) = splitAt(xs', x)
+                    val x1 = qsort greaterPart
+                    val x2 = qsort smallPart
+                  in
+                    sortedMerge(x::x1, x2)
+                  end
 
 (* divide : int list -> int list * int list
    takes a list of integers and produces two lists by alternating elements between the two lists.
    For example: divide ([1,2,3,4,5,6,7]) = ([1,3,5,7], [2,4,6])
 *)
 fun divide (xs : int list) =
-  let 
+  let
     fun divideHelp (ys : int list, index : int) =
-      if null ys then ([], [])
-      else 
-        let
-          val tmp = divideHelp(tl ys, index+1)
-          val oddPart = #1 tmp
-          val evenPart = #2 tmp
-        in
-          if index mod 2 = 1
-          then ((hd ys)::oddPart, evenPart)
-          else (oddPart, (hd ys)::evenPart)
-        end
+      case ys of
+          [] => ([], [])
+        | x :: xs' => let
+                        val (oddpart, evenpart) = divideHelp(xs', index+1)
+                      in
+                        if index mod 2 = 1 
+                        then (x::oddpart, evenpart)
+                        else (oddpart, x::evenpart)
+                      end
   in
     divideHelp(xs, 1)
   end
@@ -262,17 +263,17 @@ fun divide (xs : int list) =
    Given the initial list of integers, splits it in two lists using divide, 
    then recursively sorts those two lists, then merges them together with sortedMerge.  
 *)
-fun not_so_quick_sort(xs : int list) =
-  if null xs then []
-  else if null(tl xs) then xs
-  else
-    let
-      val tmp = divide(xs)
-      val firstPart = not_so_quick_sort(#1 tmp)
-      val secondPart = not_so_quick_sort(#2 tmp)
-    in
-      sortedMerge(firstPart, secondPart)
-    end
+fun not_so_quick_sort xs =
+  case xs of
+      [] => []
+    | x :: [] => [x]
+    | xs' => let
+                val (firstPart, secondPart) = divide xs'
+                val x1 = not_so_quick_sort firstPart
+                val x2 = not_so_quick_sort secondPart
+              in
+                sortedMerge(x1, x2)
+              end
 
 (* fullDivide : int * int -> int * int
    given two numbers k and n it attempts to evenly divide k into n as many times as possible, 
@@ -282,17 +283,18 @@ fun not_so_quick_sort(xs : int list) =
      fullDivide (2, 40) = (3, 5)  because 2*2*2*5 = 40
      fullDivide(3, 10) = (0, 10) because 3 does not divide 10. 
 *)
-fun fullDivide(k : int, n : int) =
-  if k = 0 orelse n = 0 then (0, 0)
-  else
-    let 
-      fun countHelp(k : int, n2 : int, count : int) =
-        if n2 mod k = 0
-        then countHelp(k, n2 div k, count + 1)
-        else (count, n2)
-    in
-      countHelp(k, n, 0)
-    end
+fun fullDivide x =
+  let 
+    fun countHelp(k : int, n2 : int, count : int) =
+      if n2 mod k = 0
+      then countHelp(k, n2 div k, count + 1)
+      else (count, n2)
+  in
+    case x of
+        (0, _) => (0, 0)
+      | (_, 0) => (0, 0)
+      | (k, n) => countHelp(k, n, 0)
+  end
 
 (* factorize : int -> (int * int) list
    given a number n returns a list of pairs (d, k)
@@ -314,9 +316,9 @@ fun factorize(x : int) =
     else if d = k then [(k, 1)]
     else
       let
-        val tmp = fullDivide(k, d)
+        val (x1, x2) = fullDivide(k, d)
       in
-        (k, #1 tmp) :: factorizeHelp(#2 tmp, 2)
+        (k, x1) :: factorizeHelp(x2, 2)
       end
   in
     factorizeHelp(x, 2)
@@ -330,8 +332,9 @@ fun multiply(pairs : (int * int) list) =
   let fun mul(x : int, count : int) =
     if count = 1 then x else x * mul(x, count - 1)
   in
-    if null pairs then 1
-    else mul((#1 (hd pairs)), (#2 (hd pairs))) * multiply(tl pairs)
+    case pairs of
+        [] => 1
+      | (x, c) :: xs' => mul(x, c) * multiply(xs')
   end
 
 (* all_products : (int * int) list -> int list
@@ -347,34 +350,31 @@ fun multiply(pairs : (int * int) list) =
 fun all_products(factors : (int*int) list) =
   let
     fun removeDuplicate(xs : int list) =
-      if null xs then []
-      else if null (tl xs) then xs
-      else if hd(xs) = hd(tl xs) then removeDuplicate(tl xs)
-      else (hd xs)::removeDuplicate(tl xs)
+      case xs of
+          [] => []
+        | x :: [] => [x]
+        | x :: y :: xs' => if x = y 
+                           then removeDuplicate(y::xs')
+                           else x :: removeDuplicate(y::xs')
     
     fun generateFactorList(xs : (int*int) list) =
-      if null xs then []
-      else if #2 (hd xs) = 0
-      then generateFactorList(tl xs)
-      else 
-        let
-          val factor = #1 (hd xs)
-          val count = #2 (hd xs)
-        in
-          factor :: generateFactorList((factor, count-1)::(tl xs))
-        end
+      case xs of
+          [] => []
+        | (_, 0) :: xs' => generateFactorList xs'
+        | (factor, count) :: xs' => factor :: generateFactorList((factor, count-1) :: xs')
 
-    fun generateProductList(xs : int list, ys : int list, product : int) =    
-      if null xs then ys
-      else
-        let
-          val x = generateProductList(tl xs, product::ys, product)
-          val y = generateProductList(tl xs, (product*hd(xs))::ys, product*(hd xs))
-          val x = qsort(x)
-          val y = qsort(y)
-        in
-          removeDuplicate(sortedMerge(x, y))
-        end
+    (* int list * int list * int *)
+    fun generateProductList lists =
+      case lists of
+          ([], ys, _) => ys
+        | (x::xs', ys, product) => let
+                                      val notAddX = generateProductList(xs', product::ys, product)
+                                      val addX = generateProductList(xs', (product*x)::ys, product*x)
+                                      val sorted1 = qsort notAddX
+                                      val sorted2 = qsort addX
+                                   in
+                                      removeDuplicate(sortedMerge(sorted1, sorted2))
+                                   end
   in
     generateProductList(generateFactorList(factors), [], 1)
   end
