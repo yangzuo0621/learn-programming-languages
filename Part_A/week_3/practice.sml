@@ -87,20 +87,20 @@ fun addAllOpt xs =
    otherwise returns false. 
    If the list is empty it should return false because there is no true.
 *)
-fun any(pres : bool list) =
-  if null pres then false
-  else if hd pres = true then true
-  else any(tl pres)
+fun any pres =
+  case pres of
+      [] => false
+    | true :: xs' => true
+    | _ :: xs' => any xs'
 
 (* all : bool list -> bool
    returns true if all of them true, 
    otherwise returns false. 
    If the list is empty it should return true because there is no false.
 *)
-fun all(pres : bool list) =
-  if null pres then true
-  else if hd pres = false then false
-  else all(tl pres)
+fun all ([]) = true
+  | all (false :: xs') = false
+  | all (_ :: xs') = all xs'
 
 (* zip : int list * int list -> (int * int) list
    given two lists of integers creates consecutive pairs, and stops when one of the lists is empty. 
