@@ -47,11 +47,17 @@ fun greeting name =
  * For example: 
  *   repeat ([1,2,3], [4,0,3]) = [1,1,1,1,3,3,3]
  *)
-fun repeat(xs, ys) =
+fun repeat xs =
+  case xs of 
+      (x :: x', 0 :: y') => repeat(x', y')
+    | (x :: x', y :: y') => x :: repeat(x :: x', (y-1) :: y')
+    | _ => []
+
+(* fun repeat(xs, ys) =
   case ys of 
       [] => []
     | 0 :: ys' => repeat(tl xs, ys')
-    | y :: ys' => (hd xs) :: repeat(xs, (y-1)::ys')
+    | y :: ys' => (hd xs) :: repeat(xs, (y-1)::ys') *)
 
 (* addOpt : int option * int option -> int option
    returns SOME of their sum if they are both present 
