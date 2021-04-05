@@ -4,66 +4,66 @@
  *   alternate [1,2,3,4] = 1 - 2 + 3 - 4 = -2
  *   1-2+3-4 = 1-(2-3+4) = 1-(2-(3-4))
  *)
-fun alternate (nums : int list) =
-  if null nums 
-  then 0 
-  else hd nums - alternate(tl nums)
+fun alternate nums =
+  case nums of 
+      [] => 0
+    | num :: xs' => num - alternate(xs')
 
 (* 
  * min_max takes a non-empty list of numbers, and returns a pair (min, max).
  *  min and max are the minimum and maximum of the numbers in the list.
  *)
-fun min_max (xs : int list) =
-  if null (tl xs) 
-  then (hd xs, hd xs)
-  else
-    let
-      val head = hd xs
-      val tmp = min_max(tl xs)
-      val min = if (#1 tmp) < head then (#1 tmp) else head
-      val max = if (#2 tmp) > head then (#2 tmp) else head
-    in
-      (min, max)
-    end
+fun min_max xs =
+  case xs of
+      [] => raise List.Empty
+    | x :: [] => (x, x)
+    | x :: xs' => let val (min, max) = min_max(xs')
+                  in
+                    (Int.min(x, min), Int.max(x, max))
+                  end
 
 (*
  * cumsum takes a list of numbers and returns a list of the partial sums of those numbers. 
  * For example:
  *   cumsum [1,4,20] = [1,5,25]
  *)
-fun cumsum(xs : int list) =
-  if null xs then []
-  else
-    let fun help(ys : int list, y : int) =
-      if null ys then []
-      else (hd ys + y) :: help(tl ys, hd ys + y)
+fun cumsum xs =
+  let 
+    fun help (ys, accumulation) =
+      case ys of
+          [] => []
+        | y :: ys' => (y + accumulation) :: cumsum(ys')
   in
-    (hd xs) :: help(tl xs, hd xs)
+    help (xs, 0)
   end
 
-fun greeting(name : string option) =
-  if isSome name then "Hello there, " ^ valOf name ^ "!"
-  else "Hello there, you!"
+fun greeting name =
+  case name of 
+      NONE => "Hello there, you!"
+    | SOME s => "Hello there, " ^ s ^ "!"
 
 (*
  * repeat repeats the integers in the first list according to the numbers indicated by the second list. 
  * For example: 
  *   repeat ([1,2,3], [4,0,3]) = [1,1,1,1,3,3,3]
  *)
-fun repeat(xs : int list, ys : int list) =
-  if null ys then []
-  else if hd(ys) = 0
-       then repeat(tl xs, tl ys)
-       else hd(xs) :: repeat(xs, (hd ys - 1)::tl(ys))
+fun repeat(xs, ys) =
+  case ys of 
+      [] => []
+    | 0 :: ys' => repeat(tl xs, ys')
+    | y :: ys' => (hd xs) :: repeat(xs, (y-1)::ys')
 
 (* addOpt : int option * int option -> int option
    returns SOME of their sum if they are both present 
    otherwise, returns NONE if at least one of the two arguments is NONE. 
  *)
-fun addOpt(x1: int option, x2: int option) = 
-  if isSome x1 andalso isSome x2
-  then SOME(valOf x1 + valOf x2) 
-  else NONE
+(* fun addOpt x = 
+  case x of 
+      (SOME i, SOME j) => SOME(i+j)
+    | _ => NONE *)
+
+fun addOpt (SOME i, SOME j) = SOME(i+j)
+  | addOpt (_, _) = NONE
 
 (* addAllOpt : int option list -> int option
    adds those integers that are there (i.e. adds all the SOME i). 
@@ -74,19 +74,13 @@ fun addOpt(x1: int option, x2: int option) =
      addAllOpt ([NONE, NONE, NONE]) = NONE
      addAllOpt ([]) = NONE
 *)
-fun addAllOpt(xs : int option list) = 
-  if null xs
-  then NONE
-  else
-    let
-      val head = hd xs
-      val others = addAllOpt(tl xs)
-    in
-      if isSome head andalso isSome others then SOME(valOf head + valOf others)
-      else if isSome head then head
-      else if isSome others then others
-      else NONE
-    end
+fun addAllOpt xs = 
+  case xs of
+      [] => NONE
+    | x :: [] => x
+    | NONE :: xs' => addAllOpt(xs')
+    | SOME(x) :: SOME(y)::xs' => addAllOpt(SOME(x+y)::xs')
+    | SOME(x) :: NONE :: xs' => addAllOpt(SOME(x)::xs')
 
 (* any : bool list -> bool
    returns true if there is at least one of them that is true, 
