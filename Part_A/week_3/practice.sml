@@ -112,10 +112,10 @@ fun all ([]) = true
    given two lists of integers creates consecutive pairs, and stops when one of the lists is empty. 
    For example: zip ([1,2,3], [4,6]) = [(1,4), (2,6)]. 
 *)
-fun zip(xs : int list, ys : int list) =
-  if null xs orelse null ys
-  then []
-  else (hd xs, hd ys) :: zip(tl xs, tl ys)
+fun zip xs =
+  case xs of
+      (x::x', y::y') => (x, y) :: zip(x', y')
+    | _ => []
 
 (* zipRecycle : int list * int list -> (int * int) list
    creates pairs when one list is empty it starts recycling from its start until the other list completes. 
@@ -123,44 +123,28 @@ fun zip(xs : int list, ys : int list) =
      zipRecycle ([1,2,3], [1, 2, 3, 4, 5, 6, 7]) = [(1,1), (2,2), (3,3), (1,4), (2,5), (3,6), (1,7)]
 *)
 fun zipRecycle(xs : int list, ys : int list) =
-  if null ys orelse null xs 
-  then []
-  else
-    let
-      fun zip(x : int list, y : int list) =
-        if null y
-        then []
-        else if null x
-             then (hd xs, hd y) :: zip(tl xs, tl y)
-             else (hd x, hd y) :: zip(tl x, tl y)
-    in
-      zip(xs, ys)
-    end
+  let
+    fun zip v =
+      case v of
+          (_, []) => []
+        | ([], y) => zip(xs, y)
+        | (x::x', y::y') => (x, y) :: zip(x', y')
+  in
+    zip(xs, ys)
+  end
 
 (* zipOpt : int list * int list -> option
    return SOME of a list when the original lists have the same length
    return NONE if they do not. 
 *)
-fun zipOpt(xs : int list, ys : int list) =
-  if null xs orelse null ys
-  then NONE
-  else
-    let
-      fun help(xs : int list, ys : int list) =
-        if null xs andalso null ys then SOME []
-        else if (not(null xs) andalso null ys) orelse (null xs andalso not(null ys))
-        then NONE
-        else
-          let 
-            val head = (hd xs, hd ys)
-            val tmp = help(tl xs, tl ys)
-          in
-            if isSome tmp then SOME(head::(valOf tmp))
-            else NONE
-          end
-    in
-      help(xs, ys)
-    end
+fun zipOpt lists =
+  case lists of 
+      ([], []) => SOME []
+    (* can avoid this additional pattern match? The extra match expression need to be enclosed it in parentheses *)
+    | (x::x', y::y') => (case zipOpt(x', y') of
+                            SOME(t) => SOME((x,y) :: t)
+                          | NONE => NONE)
+    | _ => NONE
 
 (* lookup : (string * int) list * string -> int option 
    takes a list of pairs (s, i) and also a string s2 to look up. 
