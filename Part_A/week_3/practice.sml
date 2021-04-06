@@ -10,9 +10,7 @@ datatype pass_fail = pass | fail
 *)
 fun pass_or_fail g =
   case g of
-      { grade=SOME i, id=_ } => if i >= 75
-                                  then pass
-                                  else fail
+      { grade=SOME i, id=_ } => if i >= 75 then pass else fail
     | _ => fail
 
 (* 
@@ -32,9 +30,7 @@ fun has_passed g =
 fun number_passed lists =
   case lists of
       [] => 0
-    | xs :: xs' => if has_passed xs = true
-                   then 1 + number_passed xs'
-                   else number_passed xs'
+    | xs :: xs' => (if has_passed xs = true then 1 else 0) + number_passed xs'
 
 (* 
    number_misgraded of type (pass_fail * final_grade) list -> int 
@@ -45,12 +41,8 @@ fun number_passed lists =
 fun number_misgraded lists =
   case lists of
       [] => 0
-    | (pass, x) :: xs' => if has_passed x = false
-                          then 1 + number_misgraded xs'
-                          else number_misgraded xs'
-    | (fail, x) :: xs' => if has_passed x = true
-                          then 1 + number_misgraded xs'
-                          else number_misgraded xs'
+    | (pass, x) :: xs' => (if has_passed x = false then 1 else 0) + number_misgraded xs'
+    | (fail, x) :: xs' => (if has_passed x = true then 1 else 0) + number_misgraded xs'
 
 
 datatype 'a tree = leaf
