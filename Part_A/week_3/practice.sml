@@ -16,7 +16,7 @@ fun pass_or_fail g =
     | _ => fail
 
 (* 
-   has_passed of type {grade : int option, id : ’a} -> bool
+   has_passed of type {grade : int option, id : 'a} -> bool
    use pass_or_fail as a helper function,
    returns true if and only if the the grade field contains SOME i for an i >= 75. *)
 fun has_passed g =
@@ -51,3 +51,37 @@ fun number_misgraded lists =
     | (fail, x) :: xs' => if has_passed x = true
                           then 1 + number_misgraded xs'
                           else number_misgraded xs'
+
+
+datatype 'a tree = leaf
+                | node of { value : 'a, left : 'a tree, right : 'a tree }
+datatype flag = leave_me_alone | prune_me
+
+(* 
+   tree_height of type 'a tree -> int
+   evaluates to a height of this tree. 
+   The height of a tree is the length of the longest path to a leaf. 
+   Thus the height of a leaf is 0. 
+*)
+fun tree_height root =
+  case root of
+      leaf => 0
+    | node { value, left, right } => 1 + Int.max(tree_height left, tree_height right)
+
+(* 
+   sum_tree of type int tree -> int
+   evaluates to the sum of all values in the nodes. 
+*)
+fun sum_tree root =
+  case root of
+      leaf => 0
+    | node { value, left, right } => value + sum_tree left + sum_tree right
+
+(* 
+   gardener of type flag tree -> flag tree
+   its structure is identical to the original tree 
+   except all nodes of the input containing prune_me are (along with all their descendants) 
+   replaced with a leaf. 
+*)
+(* fun gardener root =
+  case  *)
