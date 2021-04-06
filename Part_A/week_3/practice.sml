@@ -77,3 +77,98 @@ fun sum_tree root =
 *)
 (* fun gardener root =
   case  *)
+
+(* 
+   A "natural" number is either zero, or the "successor" of a another integer.
+   For example the number 1 is just SUCC ZERO, the number 2 is SUCC (SUCC ZERO), and so on. 
+*)
+datatype nat = ZERO | SUCC of nat
+
+(* 
+   is_positive : nat -> bool
+   given a "natural number" returns whether that number is positive (i.e. not zero). 
+*)
+fun is_positive num =
+  case num of
+      ZERO => false
+    | _ => true
+
+exception Negative
+
+(* 
+   pred : nat -> nat
+   given a "natural number" returns its predecessor. 
+   Since 0 does not have a predecessor in the natural numbers, 
+   throw an exception Negative (will need to define it first). 
+*)
+fun pred num =
+  case num of
+      ZERO => raise Negative
+    | SUCC ZERO => ZERO
+    | SUCC preNat => preNat
+
+(* 
+   nat_to_int : nat -> int
+   given a "natural number" returns the corresponding int. 
+   For example, nat_to_int (SUCC (SUCC ZERO)) = 2
+   (Do not use this function for problems 13-16 -- it makes them too easy.) 
+*)
+fun nat_to_int num =
+  case num of
+      ZERO => 0
+    | SUCC preNat => 1 + nat_to_int preNat
+
+(* int_to_nat : int -> nat
+   given an integer returns a "natural number" representation for it, 
+   or throws a Negative exception if the integer was negative.
+   (Again, do not use this function in the next few problems.) 
+*)
+fun int_to_nat num =
+  case num of
+      0 => ZERO
+    | 1 => SUCC ZERO
+    | x => if x < 0 then raise Negative else SUCC (int_to_nat(x-1))
+
+(* 13.
+   add : nat * nat -> nat
+   perform addition. 
+*)
+fun add natPair =
+  case natPair of
+      (ZERO, ZERO) => ZERO
+    | (ZERO, SUCC y) => SUCC (add(ZERO, y))
+    | (SUCC x, ZERO) => SUCC (add(x, ZERO))
+    | (SUCC x, SUCC y) => SUCC (SUCC (add(x, y)))
+
+(* 14. 
+   sub : nat * nat -> nat
+   perform subtraction.
+*)
+fun sub natPair =
+  case natPair of
+      (ZERO, SUCC _) => raise Negative
+    | (ZERO, ZERO) => ZERO
+    | (x, ZERO) => x
+    | (SUCC x, y) => sub (x, pred(y))
+
+(* 15. 
+   mult : nat * nat -> nat
+   perform multiplication.
+*)
+fun mult natPair =
+  case natPair of
+      (ZERO, _) => ZERO
+    | (_, ZERO) => ZERO
+    | (x, SUCC ZERO) => x
+    | (x, SUCC (SUCC y)) => add (mult(x, y), add(x, x))
+
+(* 16. 
+   less_than : nat * nat -> bool
+   return true when the first argument is less than the second. 
+*)
+fun less_than natPair =
+  case natPair of
+      (ZERO, _) => false
+    | (SUCC _, ZERO) => true
+    | (SUCC x, SUCC y) => less_than(x, y)
+
