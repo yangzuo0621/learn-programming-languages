@@ -172,3 +172,30 @@ fun less_than natPair =
     | (SUCC _, ZERO) => true
     | (SUCC x, SUCC y) => less_than(x, y)
 
+
+datatype intSet = 
+  Elems of int list (*list of integers, possibly with duplicates to be ignored*)
+| Range of { from : int, to : int }  (* integers from one number to another *)
+| Union of intSet * intSet (* union of the two sets *)
+| Intersection of intSet * intSet (* intersection of the two sets *)
+
+(* 17. 
+   isEmpty : intSet -> bool 
+   determines if the set is empty or not. 
+*)
+(* fun isEmpty sets =
+  case sets of
+      Elems [] => true
+    | Union ([], []) => true
+    |  *)
+
+
+(* 18. 
+   contains: intSet * int -> bool
+   returns whether the set contains a certain element or not. 
+*)
+
+(* 19. 
+   toList : intSet -> int list 
+   returns a list with the set's elements, without duplicates. 
+*)
