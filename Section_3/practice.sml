@@ -2,6 +2,12 @@
    composes two functions with "optional" values. 
    If either function returns NONE, then the result is NONE. 
  *)
+fun compose_opt f g x =
+    case f x of
+	NONE => NONE
+      | SOME i => case g x of
+		      NONE => NONE
+		    | y => y
 
 
 (* do_until : ('a -> 'a) -> ('a -> bool) -> 'a -> 'a 
@@ -10,11 +16,16 @@
    will evaluate to a function of type int->int that divides its argument by 2 
    until it reaches an odd number. In effect, it will remove all factors of 2 its argument. 
  *)
-
+fun do_until f p x =
+    if p x
+    then x
+    else do_until f p (f x)
 
 (* factorial
    Use do_until to implement factorial. 
  *)
+fun factorial n =
+    #1 (do_until (fn (acc, x) => (acc*x, x-1)) (fn (_, x) => x = 0) (1, n))
 
 
 (* fixed_point: (''a -> ''a) -> ''a -> ''a
