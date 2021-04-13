@@ -32,12 +32,16 @@ fun factorial n =
    Use do_until that given a function f and an initial value x applies f to x until f x = x. 
    (Notice the use of '' to indicate equality types.) 
  *)
+fun fixed_point f x =
+    do_until f (fn y => f y = x) (f x)
 
 
 (* map2 : ('a -> 'b) -> 'a * 'a -> 'b * 'b
    that given a function that takes 'a values to 'b values and a pair of 'a values
    returns the corresponding pair of 'b values. 
  *)
+fun map2 f (x1, x2) =
+    (f x1, f x2)
 
 
 (* app_all : ('b -> 'c list) -> ('a -> 'b list) -> 'a -> 'c list
@@ -45,6 +49,14 @@ fun factorial n =
    and concatenate the results into a single list. 
    For example, for fun f n = [n, 2 * n, 3 * n], we have app_all f f 1 = [1, 2, 3, 2, 4, 6, 3, 6, 9]
  *)
+fun app_all f g x =
+    let fun transform f y =
+	    case y of
+		[] => []
+	      | ys::ys' => (f ys) @ (transform f ys')
+    in
+	transform f (g x)
+    end
 
 
 (* Implement List.foldr (see http://sml-family.org/Basis/list.html#SIG:LIST.foldr:VAL). *)
