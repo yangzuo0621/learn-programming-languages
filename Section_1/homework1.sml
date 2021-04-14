@@ -44,9 +44,9 @@ fun number_before_reaching_sum (sum : int, xs : int list) =
     let fun helper (xs : int list, acc : int, cnt : int) =
 	    if null xs
 	    then cnt
-	    else if acc < sum
-	    then helper(tl xs, acc + hd xs, cnt + 1)
-	    else cnt - 1
+	    else if acc + hd xs < sum
+	    then helper (tl xs, acc + hd xs, cnt + 1)
+	    else cnt
     in
 	helper (xs, 0, 0)
     end
