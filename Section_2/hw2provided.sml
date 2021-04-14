@@ -61,3 +61,15 @@ datatype move = Discard of card | Draw
 exception IllegalMove
 
 (* put your solutions for problem 2 here *)
+fun card_color c =
+    case c of
+	(Clubs, _) => Black
+      | (Spades, _) => Black
+      | (Diamonds, _) => Red
+      | (Hearts, _) => Red
+
+fun card_value c =
+    case c of
+	(_, Num i) => i
+      | (_, Ace) => 11
+      | (_, _) => 10
