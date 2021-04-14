@@ -106,3 +106,34 @@ fun removeDuplicate (xs : int list) =
 
 fun number_in_months_challenge (dates: (int * int * int) list, months : int list) =
     number_in_months (dates, removeDuplicate (qsort (months)))
+
+fun dates_in_months_challenge (dates : (int * int * int) list, months : int list) =
+    dates_in_months (dates, removeDuplicate (qsort (months)))
+
+fun reasonable_date (date : int * int * int) =
+    let
+	fun valid_year (year : int) = year > 0
+	fun valid_month (month : int) = month >=1 andalso month <= 12
+	fun leap_year (year : int) = (year mod 400 = 0) orelse (year mod 4 = 0 andalso year mod 100 <> 0)
+
+	fun get_days (year : int, month : int, day : int) =
+	    let
+		val normal_days_list = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+		fun get_nth (xs : int list, n : int) =
+		    if null xs orelse n <= 0
+		    then 0
+		    else if n = 1
+		    then hd xs
+		    else get_nth (tl xs, n - 1)
+		val days = get_nth (normal_days_list, month)
+	    in
+		if leap_year (year) andalso month = 2
+		then days + 1
+		else days
+	    end
+
+	fun valid_day (year : int, month : int, day : int) =
+	    day > 0 andalso day <= get_days (year, month, day)
+    in
+	valid_year (#1 date) andalso valid_month (#2 date) andalso valid_day (#1 date, #2 date, #3 date)
+    end
