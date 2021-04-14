@@ -71,3 +71,38 @@ fun oldest (dates : (int * int * int) list) =
 	 in
 	     if is_older ((hd dates), d) then SOME (hd dates) else SOME d
 	 end
+
+
+(* Challenge Problem *)
+fun partition (xs : int list, pivot : int) =
+    if null xs
+    then ([], [])
+    else let
+	val head = hd xs
+	val part = partition (tl xs, pivot)
+    in
+	if head < pivot then (head::(#1 part), #2 part)
+	else (#1 part, head::(#2 part))
+    end
+	     
+fun qsort (xs : int list) =
+    if null xs then []
+    else let
+	val pivot = hd xs
+	val parts = partition (tl xs, pivot)
+    in
+	(qsort (#1 parts)) @ (pivot :: (qsort (#2 parts)))
+    end
+
+	     
+fun removeDuplicate (xs : int list) =
+    if null xs
+    then []
+    else if null (tl xs)
+    then xs
+    else if hd xs = hd (tl xs)
+    then removeDuplicate (tl xs)
+    else (hd xs) :: removeDuplicate (tl xs)
+
+fun number_in_months_challenge (dates: (int * int * int) list, months : int list) =
+    number_in_months (dates, removeDuplicate (qsort (months)))
