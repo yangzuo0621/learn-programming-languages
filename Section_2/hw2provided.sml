@@ -73,3 +73,36 @@ fun card_value c =
 	(_, Num i) => i
       | (_, Ace) => 11
       | (_, _) => 10
+
+fun remove_card (cs, c, e) =
+    case cs of
+	[] => raise e
+      | x::cs' => if x = c then cs'
+		  else x :: remove_card (cs', c, e)
+
+fun all_same_color cs =
+    case cs of
+	[] => true
+      | x::[] => true
+      | x::y::cs' => if card_color x = card_color y
+		     then all_same_color (y::cs')
+		     else false
+
+fun sum_cards cs =
+    let fun sum_help (cs, sum) =
+	    case cs of
+		[] => sum
+	      | c::cs' => sum_help (cs', sum + card_value c)
+    in
+	sum_help (cs, 0)
+    end
+
+fun score (cs, goal) =
+    let val sum = sum_cards cs
+	val preliminary_score = if sum > goal then 3 * (sum - goal) else goal - sum
+    in
+	if all_same_color cs
+	then preliminary_score div 2
+	else preliminary_score
+    end
+
