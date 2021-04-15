@@ -106,3 +106,24 @@ fun score (cs, goal) =
 	else preliminary_score
     end
 
+fun officiate (card_list, move_list, goal) =
+    let fun run (held_cards, cards, moves, e) =
+	    case moves of
+		[] => score (held_cards, goal)
+	      | Draw :: moves' => if null cards then score (held_cards, goal)
+				  else let val head = hd cards
+					   val new_held_cards = head :: held_cards
+				       in
+					   if sum_cards new_held_cards > goal
+					   then score (new_held_cards, goal)
+					   else run (new_held_cards, tl cards, moves', e)
+				       end
+	      | Discard c :: moves' => let val remain_cards = remove_card (held_cards, c, e)
+				       in
+					   run (remain_cards, cards, moves', e)
+				       end
+    in
+	run ([], card_list, move_list, IllegalMove)
+    end
+	
+									   
