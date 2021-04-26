@@ -26,8 +26,6 @@ fun g f1 f2 p =
 	 | _                 => 0
     end
 
-(**** for the challenge problem only ****)
-
 datatype typ = Anything
 	     | UnitT
 	     | IntT
@@ -77,3 +75,27 @@ fun all_answers f xlist =
 	accumulator (SOME []) xlist
     end
 
+
+val count_wildcards = g (fn () => 1) (fn x => 0)
+val count_wild_and_variable_lengths = g (fn () => 1) (fn x => String.size(x))
+fun count_some_var (x, p) =
+    g (fn () => 0) (fn y => if x = y then 1 else 0) p
+
+fun check_pat p =
+    let fun extract_all_variables p =
+	    case p of
+		Variable x => [x]
+	      | TupleP ps => List.foldl (fn (p, i) => i @ extract_all_variables(p)) [] ps
+	      |  _ => []
+	fun unique xs =
+	    case xs of
+		[] => true
+	      | x::[] => true
+	      | x::xs' => List.exists (fn y => x <> y) xs' andalso unique xs'
+    in
+	unique (extract_all_variables p)
+    end
+	
+		       
+			
+(**** for the challenge problem only ****)
