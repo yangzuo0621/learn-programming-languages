@@ -33,7 +33,7 @@ datatype typ = Anything
 	     | Datatype of string
 
 (**** you can put all your code here ****)
-fun only_captitals slist =
+fun only_capitals slist =
     List.filter (fn s => Char.isUpper (String.sub(s, 0))) slist
 
 fun longest_string1 slist =
@@ -96,6 +96,19 @@ fun check_pat p =
 	unique (extract_all_variables p)
     end
 	
-		       
-			
+fun match p =
+    case p of
+	(_, Wildcard) => SOME []
+      | (v, Variable s) => SOME [(s,v)]
+      | (Unit, UnitP) => SOME []
+      | (Const x, ConstP y) => if x = y then SOME [] else NONE
+      | (Tuple vs, TupleP ps) => all_answers match (ListPair.zip(vs, ps))
+      | (Constructor(s2,v), ConstructorP(s1,p)) => if s1 = s2 then match (v,p) else NONE
+      | _ => NONE
+
+fun first_match v pl =
+    SOME (first_answer match (map (fn x => (v, x)) pl))
+    handle NoAnswer => NONE
+
+			   
 (**** for the challenge problem only ****)
