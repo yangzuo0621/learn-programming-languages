@@ -8,17 +8,13 @@ fun same_string(s1 : string, s2 : string) =
 
 (* put your solutions for problem 1 here *)
 fun all_except_option (s, slist) =
-    let fun exclude xs =
-	    case xs of
-		[] => []
-	      | x::xs' => if same_string (x, s)
-			  then exclude xs'
-			  else x::(exclude xs')
-	val ys = exclude slist
-    in
-	if length slist = length ys then NONE
-	else SOME ys
-    end
+    case slist of
+	[] => NONE
+      | x::xs' => if same_string (x, s)
+		  then SOME xs'
+		  else case all_except_option (s, xs') of
+			   NONE => NONE
+			| SOME i => SOME (x::i)
 
 fun get_substitutions1 (slist, s) =
     case slist of
@@ -110,14 +106,11 @@ fun officiate (card_list, move_list, goal) =
     let fun run (held_cards, cards, moves, e) =
 	    case moves of
 		[] => score (held_cards, goal)
-	      | Draw :: moves' => if null cards then score (held_cards, goal)
-				  else let val head = hd cards
-					   val new_held_cards = head :: held_cards
-				       in
-					   if sum_cards new_held_cards > goal
-					   then score (new_held_cards, goal)
-					   else run (new_held_cards, tl cards, moves', e)
-				       end
+	      | Draw :: moves' => (case cards of
+				      [] => score (held_cards, goal)
+				    | head::xs' => if sum_cards (head::held_cards) > goal
+						then score (head::held_cards, goal)
+						else run (head::held_cards, xs', moves', e))
 	      | Discard c :: moves' => let val remain_cards = remove_card (held_cards, c, e)
 				       in
 					   run (remain_cards, cards, moves', e)
@@ -126,4 +119,3 @@ fun officiate (card_list, move_list, goal) =
 	run ([], card_list, move_list, IllegalMove)
     end
 	
-									   
