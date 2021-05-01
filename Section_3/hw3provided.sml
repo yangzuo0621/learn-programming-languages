@@ -86,12 +86,13 @@ fun check_pat p =
 	    case p of
 		Variable x => [x]
 	      | TupleP ps => List.foldl (fn (p, i) => i @ extract_all_variables(p)) [] ps
+	      | ConstructorP (_, p) => extract_all_variables p
 	      |  _ => []
 	fun unique xs =
 	    case xs of
 		[] => true
 	      | x::[] => true
-	      | x::xs' => List.exists (fn y => x <> y) xs' andalso unique xs'
+	      | x::xs' => not (List.exists (fn y => x = y) xs') andalso unique xs'
     in
 	unique (extract_all_variables p)
     end
@@ -102,7 +103,9 @@ fun match p =
       | (v, Variable s) => SOME [(s,v)]
       | (Unit, UnitP) => SOME []
       | (Const x, ConstP y) => if x = y then SOME [] else NONE
-      | (Tuple vs, TupleP ps) => all_answers match (ListPair.zip(vs, ps))
+      | (Tuple vs, TupleP ps) => if length vs = length ps
+				 then all_answers match (ListPair.zip(vs, ps))
+				 else NONE
       | (Constructor(s2,v), ConstructorP(s1,p)) => if s1 = s2 then match (v,p) else NONE
       | _ => NONE
 
